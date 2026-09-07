@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const timeSlotsRoutes = require('./routes/timeSlots.routes');
+const AuthRouter = require('./routes/AuthRouter')
 const cors = require('cors');
 const bodyParse = require("body-parser")
 const dotenv = require('dotenv')
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(bodyParse.json())
 
 app.use('/api/slots', timeSlotsRoutes);
+app.use("/auth", AuthRouter)
 
 const port = 3000
 

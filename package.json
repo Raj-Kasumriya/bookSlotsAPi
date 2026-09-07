@@ -1,5 +1,5 @@
 {
-  "name": "BookSlot-Apis",
+  "name": "BookSlotAndAuth-Apis",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,9 +11,13 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.3.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "joi": "^18.2.8",
+    "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.3.0",
     "mongoose": "^9.2.1",
     "multer": "^2.0.2",

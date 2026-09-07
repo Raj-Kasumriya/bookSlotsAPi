@@ -8,7 +8,6 @@ const studentIdSlots = async (req, res) => {
 
         const studentId = req.params.studentId
 
-
         const search1 = { "studentId": studentId }
 
         const existingSlotBook = await BookSlots.find(search1)
@@ -38,7 +37,7 @@ const studentIdSlots = async (req, res) => {
 const mentorIdSlots = async (req, res) => {
 
     try {
-        s
+
         const mentorId = req.params.mentorId
         const search = { "mentorId": mentorId }
 
@@ -92,6 +91,29 @@ const mentorSentSlots = async (req, res) => {
     }
 
 }
+
+const mentorUpdateSlots = async (req, res) => {
+
+
+    try {
+        const existingSlot = await TimeSlot.findById(req.params.id, req.body)
+        if (!existingSlot) return res.status(404).json({ massage: "time slot not found" });
+
+        const newSlots = await TimeSlot.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+        res.status(201).json("slots Successfully update");
+
+    } catch (err) {
+
+        res.status(400).json({ massage: err.massage });
+
+    }
+
+
+
+}
+
+
 
 const deleteAllSlots = async (req, res) => {
 
@@ -228,5 +250,6 @@ module.exports = {
     mentorFindBookSlots,
     studentBookSlots,
     studentBookSlotsDelete,
-    deleteAllBookedSlots
+    deleteAllBookedSlots,
+    mentorUpdateSlots
 }

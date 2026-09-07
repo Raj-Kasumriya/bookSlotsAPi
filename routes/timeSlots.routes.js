@@ -10,7 +10,8 @@ const { studentIdSlots,
     mentorFindBookSlots,
     studentBookSlots,
     studentBookSlotsDelete,
-    deleteAllBookedSlots } = require('../controllers/SlotsController')
+    deleteAllBookedSlots,
+    mentorUpdateSlots } = require('../controllers/SlotsController')
 
 
 
@@ -18,7 +19,7 @@ router.get('/:studentId', studentIdSlots)
 router.get('/:mentorId', mentorIdSlots)
 router.delete('/:mentorId/:sessionId', mentorDeleteSlots)
 router.post('/', mentorSentSlots)
-
+router.put('/:id', mentorUpdateSlots)
 
 router.delete('/', deleteAllSlots)
 
