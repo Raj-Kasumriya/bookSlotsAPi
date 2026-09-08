@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-const InternalUrl = process.env.InternalUrl
+const ExternalInternalUrl = process.env.ExternalInternalUrl
 
-mongoose.connect(InternalUrl).then(() => {
+mongoose.connect(ExternalInternalUrl).then(() => {
 
     console.log("connect database");
 
