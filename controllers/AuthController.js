@@ -44,6 +44,7 @@ const signup = async (req, res) => {
         )
 
         newUser["jwtToken"] = jwtToken;
+
         await newUser.save();
 
         return res.status(201).json({

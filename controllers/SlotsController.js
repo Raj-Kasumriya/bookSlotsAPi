@@ -5,7 +5,10 @@ const { TimeSlot, BookSlots } = require('../models/slots.model');
 
 const serverStatus = async (req, res) => {
     try {
-        res.json("server is live")
+
+        const TimeSlotsSend = await TimeSlot.find()
+
+        res.json({ status: "server is live", TimeSlots: TimeSlotsSend })
 
     } catch (err) {
         res.status(500).json({ massage: err.massage });
