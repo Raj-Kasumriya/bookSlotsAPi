@@ -65,81 +65,95 @@ const signup = async (req, res) => {
 };
 
 
+
+
 const login = async (req, res) => {
-
     try {
-        const { email, password, phone } = req.body;
+        const { email, phone, password } = req.body;
 
-        const emailOrPhone = email && phone;
+        // Find user using either email OR phone
+        const query = {
+            $or: [
+                ...(email ? [{ email }] : []),
+                ...(phone ? [{ phone }] : []),
+            ],
+        };
 
-        const user = await SWSUser.findOne({ emailOrPhone });
-        const errorMess = "Auth failed email or phone and password id wrong"
+        const user = await SWSUser.findOne(query);
+
+        const errorMess =
+            "Authentication failed. Email/phone or password is incorrect.";
 
         if (!user) {
-            return res.status((409))
-                .json({ message: errorMess, success: false })
+            return res.status(401).json({
+                message: errorMess,
+                success: false,
+            });
         }
 
-
-        const isPassEqual = await bcrypt.compare(password, user.password);
+        // Compare password
+        const isPassEqual = await bcrypt.compare(
+            password,
+            user.password
+        );
 
         if (!isPassEqual) {
-            return res.status((403))
-                .json({ message: errorMess, success: false })
+            return res.status(401).json({
+                message: errorMess,
+                success: false,
+            });
         }
 
+        // Check existing JWT
+        let tokenIsValid = false;
 
-        //console.log(user.jwtToken)
-
-
-        const currentT = new Date()
-
-        jwt.verify(user.jwtToken, Jwd_SECRET, (err,) => {
-            if (err) {
-                if (err.name === 'TokenExpiredError') {
-
-                    const newJwtToken = jwt.sign(
-                        { email: user.email, _id: user._id },
-                        Jwd_SECRET,
-                        { expiresIn: "24h" },
-                    )
-
-                    user["jwtToken"] = newJwtToken;
-                    user["createTime"] = currentT.toLocaleString();
-
-                }
+        if (user.jwtToken) {
+            try {
+                jwt.verify(user.jwtToken, Jwd_SECRET);
+                tokenIsValid = true;
+            } catch (err) {
+                tokenIsValid = false;
             }
-        })
+        }
 
-        // console.log(user.jwtToken)
+        // Create a new token if token doesn't exist or is expired/invalid
+        if (!tokenIsValid) {
+            const newJwtToken = jwt.sign(
+                {
+                    email: user.email,
+                    phone: user.phone,
+                    _id: user._id,
+                },
+                Jwd_SECRET,
+                {
+                    expiresIn: "24h",
+                }
+            );
 
+            user.jwtToken = newJwtToken;
+            user.createTime = new Date();
+            await user.save();
+        }
 
-        await user.save();
+        // Don't send password to frontend
+        const userResponse = user.toObject();
+        delete userResponse.password;
 
-        // const jwtToken = jwt.sign(
-        //     { email: user.email, _id: user._id },
-        //     Jwd_SECRET,
-        //     { expiresIn: "48h" },
-        // )
-
-        // const currentT = new Date()
-
-        res.status(200).json({
-
+        return res.status(200).json({
             message: "Login successfully",
             success: true,
-            User: user
-
-        })
-
+            User: userResponse,
+        });
 
     } catch (err) {
+        console.error("Login Error:", err);
 
-        res.status(500).json({ message: "Internal server error", success: false })
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+        });
     }
-
-}
-
+};
 
 
 
