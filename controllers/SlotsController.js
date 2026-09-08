@@ -2,6 +2,19 @@
 const { TimeSlot, BookSlots } = require('../models/slots.model');
 
 
+
+const serverStatus = async (req, res) => {
+    try {
+        res.json("server is live")
+
+    } catch (err) {
+        res.status(500).json({ massage: err.massage });
+
+    }
+}
+
+
+
 const studentIdSlots = async (req, res) => {
 
     try {
@@ -241,6 +254,7 @@ const deleteAllBookedSlots = async (req, res) => {
 }
 
 module.exports = {
+    serverStatus,
     studentIdSlots,
     mentorIdSlots,
     mentorDeleteSlots,

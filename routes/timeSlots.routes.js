@@ -11,9 +11,12 @@ const { studentIdSlots,
     studentBookSlots,
     studentBookSlotsDelete,
     deleteAllBookedSlots,
-    mentorUpdateSlots } = require('../controllers/SlotsController')
+    mentorUpdateSlots,
+    serverStatus } = require('../controllers/SlotsController')
 
 
+
+router.get('/', serverStatus)
 
 router.get('/:studentId', studentIdSlots)
 router.get('/:mentorId', mentorIdSlots)
