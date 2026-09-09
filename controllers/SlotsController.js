@@ -22,26 +22,35 @@ const studentIdSlots = async (req, res) => {
 
     try {
 
-        const studentId = req.params.studentId
+        const { studentId } = req.params;
 
-        const search1 = { "studentId": studentId }
+        const existingSlotBook = await BookSlots.find({
+            studentId: studentId
+        });
 
-        const existingSlotBook = await BookSlots.find(search1)
-
-        const bookedSessionId = existingSlotBook?.map((slot) => {
-
-            return slot.ActivitySlotsId
-        })
-
-        //const search = { "bookSlotId": bookSlotId }
-        // const search2 = { "ActivitySlotsId": ActivitySlotsId }
-
-        // if (existingSlotBook) return res.status(409).json({ massage: "slot all ready booked" });
+        // Get all booked ActivitySlotsId
+        const bookedSessionIds = existingSlotBook.flatMap(
+            (slot) => slot.ActivitySlotsId || []
+        );
 
 
-        const slots = await TimeSlot.find()
 
-        res.json({ slots: slots, bookedSessionId: bookedSessionId });
+        // Find only TimeSlots which are NOT booked
+        const slots = await TimeSlot.find({
+            _id: {
+                $nin: bookedSessionIds
+            }
+        });
+
+
+
+
+        res.status(200).json({
+            success: true,
+            slots: slots,
+
+        });
+
 
     } catch (err) {
         res.status(500).json({ massage: err.massage });
@@ -138,7 +147,7 @@ const deleteAllSlots = async (req, res) => {
         const slots = await TimeSlot.deleteMany({});
         if (!slots) return res.status(404).json({ massage: "student not found" });
 
-        res.json({ massage: 'donor Delete' });
+        res.json({ massage: 'all slots deleted Delete' });
     } catch (err) {
         res.status(500).json({ massage: err.massage });
     }
