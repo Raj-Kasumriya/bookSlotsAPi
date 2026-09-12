@@ -29,11 +29,16 @@ const studentIdSlots = async (req, res) => {
         });
 
         // Get all booked ActivitySlotsId
-        const bookedSessionIds = existingSlotBook.flatMap(
-            (slot) => slot.ActivitySlotsId || []
-        );
+        const bookedSessionIds = existingSlotBook.map((slot) => {
 
+            if (slot.studentBookingStatus === "waiting" || slot.studentBookingStatus === "confirm") {
 
+                return slot.ActivitySlotsId || []
+            }
+
+            return []
+
+        });
 
         // Find only TimeSlots which are NOT booked
         const slots = await TimeSlot.find({
@@ -178,9 +183,12 @@ const mentorFindBookSlots = async (req, res) => {
 
     try {
 
+        const search4 = { "studentBookingStatus": "confirm" }
+        const search5 = { "studentBookingStatus": "waiting" }
+
         const mentorId = req.params.mentorId
         const search = { "mentorId": mentorId }
-        const slots = await BookSlots.find(search)
+        const slots = await BookSlots.find({ $and: [search], $or: [search4, search5] })
 
 
         res.json(slots);
@@ -200,19 +208,20 @@ const studentBookSlots = async (req, res) => {
         const search = { "bookSlotId": bookSlotId }
         const search2 = { "ActivitySlotsId": ActivitySlotsId }
         const search3 = { "studentId": studentId }
+        const search4 = { "studentBookingStatus": "confirm" }
+        const search5 = { "studentBookingStatus": "waiting" }
         //console.log(search, search2)
 
-        const existingSlotBook = await BookSlots.findOne({ $and: [search, search2] })
+        const existingSlotBook = await BookSlots.findOne({ $and: [search, search2], $or: [search4, search5] })
 
         if (existingSlotBook) return res.status(409).json({ massage: "slot all ready booked" });
 
 
-        const existingSlot = await BookSlots.findOne({ $and: [search2, search3] })
+        const existingSlot = await BookSlots.findOne({ $and: [search2, search3], $or: [search4, search5] })
 
         if (existingSlot) return res.status(409).json({ massage: "you booked slot all ready for this session" });
 
         await BookSlots.create(req.body);
-
         res.status(201).json({ massage: "slots book successfully add" });
 
     } catch (err) {
@@ -222,6 +231,29 @@ const studentBookSlots = async (req, res) => {
     }
 
 }
+
+const mentorConfirmSlot = async (req, res) => {
+
+
+    try {
+        const existingSlot = await BookSlots.findById(req.params.slotid, req.body)
+        if (!existingSlot) return res.status(404).json({ massage: "time slot not found" });
+
+        const newSlots = await BookSlots.findByIdAndUpdate(req.params.slotid, req.body, { new: true });
+
+        res.status(201).json({ massage: "slots Successfully confirm" });
+
+    } catch (err) {
+
+        res.status(400).json({ massage: err.massage });
+
+    }
+
+
+
+}
+
+
 
 const studentBookSlotsDelete = async (req, res) => {
 
@@ -247,6 +279,8 @@ const studentBookSlotsDelete = async (req, res) => {
 
 }
 
+
+
 const deleteAllBookedSlots = async (req, res) => {
 
     try {
@@ -255,6 +289,25 @@ const deleteAllBookedSlots = async (req, res) => {
 
         //if (!slots) return res.status(404).json({ massage: "student not found" });
 
+        res.json(slots);
+
+    } catch (err) {
+        res.status(500).json({ massage: err.massage });
+
+    }
+
+}
+
+
+const bookSlotsDeleteById = async (req, res) => {
+
+    try {
+
+        const { BookedId } = req.params
+
+        console.log(BookedId, req.params)
+
+        const slots = await BookSlots.findByIdAndDelete(BookedId);
 
         res.json(slots);
 
@@ -277,5 +330,7 @@ module.exports = {
     studentBookSlots,
     studentBookSlotsDelete,
     deleteAllBookedSlots,
-    mentorUpdateSlots
+    mentorUpdateSlots,
+    mentorConfirmSlot,
+    bookSlotsDeleteById
 }

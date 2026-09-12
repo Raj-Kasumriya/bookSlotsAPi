@@ -103,6 +103,11 @@ const bookSlotsSchema = new mongoose.Schema(
             required: true,
 
         },
+        studentBookingStatus: {
+            type: String,
+            required: true,
+
+        },
 
     },
 );

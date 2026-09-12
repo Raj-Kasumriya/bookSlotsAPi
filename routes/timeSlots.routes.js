@@ -12,7 +12,7 @@ const { studentIdSlots,
     studentBookSlotsDelete,
     deleteAllBookedSlots,
     mentorUpdateSlots,
-    serverStatus } = require('../controllers/SlotsController')
+    serverStatus, mentorConfirmSlot, bookSlotsDeleteById } = require('../controllers/SlotsController')
 
 
 
@@ -24,13 +24,16 @@ router.delete('/:mentorId/:sessionId', mentorDeleteSlots)
 router.post('/', mentorSentSlots)
 router.put('/:id', mentorUpdateSlots)
 
-router.delete('/', deleteAllSlots)
 
+router.delete('/', deleteAllSlots)
 
 router.get('/booksSlots/student/:studentId', studentFindBookSlots)
 router.get('/booksSlots/mentor/:mentorId', mentorFindBookSlots)
 router.post('/booksSlots', studentBookSlots)
+router.put('/booksSlots/mentor/:slotid', mentorConfirmSlot)
 router.delete('/booksSlots/:studentId/:ActivitySlotsId', studentBookSlotsDelete)
+
+router.delete('/booksSlots/:BookedId', bookSlotsDeleteById)
 
 router.delete('/booksSlots/', deleteAllBookedSlots)
 

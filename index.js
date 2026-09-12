@@ -21,7 +21,7 @@ app.use(bodyParse.json())
 app.use('/api/slots', timeSlotsRoutes);
 app.use("/auth", AuthRouter)
 
-const port = process.env.Port || 3000
+const port = process.env.Port || 8000
 
 app.listen(port, () => {
 
